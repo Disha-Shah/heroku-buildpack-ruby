@@ -369,12 +369,21 @@ WARNING
 
     true
   rescue LanguagePack::Fetcher::FetchError => error
-    message = <<ERROR
+    if ruby_version.jruby?
+      message = <<ERROR
+An error occurred while installing Ruby #{ruby_version.version}
+For supported Ruby versions see https://devcenter.heroku.com/articles/ruby-support#supported-runtimes
+Note: Only JRuby 1.7.13 and newer are supported on Cedar-14
+#{error.message}
+ERROR
+    else
+      message = <<ERROR
 An error occurred while installing Ruby #{ruby_version.version}
 For supported Ruby versions see https://devcenter.heroku.com/articles/ruby-support#supported-runtimes
 Note: Only the most recent version of Ruby 2.1 is supported on Cedar-14
 #{error.message}
 ERROR
+    end
     error message
   end
 
@@ -533,7 +542,7 @@ WARNING
           cache.load ".bundle"
         end
 
-        topic("Installing dependencies using #{bundler.version}")
+        topic("Installing dependencies using bundler #{bundler.version}")
         load_bundler_cache
 
         bundler_output = ""
